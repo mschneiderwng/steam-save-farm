@@ -1,0 +1,32 @@
+[project]
+name = "ssf"
+version = "2.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [{ name = "Markus Schneider", email = "mschneider@linkdot.org" }]
+requires-python = ">=3.12"
+dependencies = ["click>=8.1", "structlog>=24.4"]
+
+[dependency-groups]
+dev = [
+    { include-group = "test" },
+    { include-group = "typing" },
+    { include-group = "lint" },
+]
+typing = ["mypy>=1.14.1"]
+test = ["coverage>=7.6.10", "pytest>=8.3.4"]
+lint = ["ruff>=0.9.3"]
+
+[project.scripts]
+ssf = "ssf.cli:main"
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[tool.mypy]
+exclude = ['tests']
+
+[tool.ruff]
+line-length = 120
+target-version = "py312"
