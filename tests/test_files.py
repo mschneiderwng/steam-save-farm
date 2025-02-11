@@ -1,6 +1,7 @@
 import tempfile
 from pathlib import Path
 import ssf.files
+import pytest
 
 
 def test_already_done():
@@ -40,6 +41,11 @@ def test_src_symlinks_elsewhere():
         src = Path(src_dir_name) / "mysavesrc"
         dst = Path(dst_dir_name) / "mysavedst"
 
+        # dst exists
+        dst.mkdir()
+        dst_file = dst / "dst_save.txt"
+        dst_file.touch()
+
         # src is symlink but not to dst
         src.symlink_to("/")
 
@@ -62,7 +68,7 @@ def test_dst_already_exists():
 
         # dst exists
         dst.mkdir()
-        dst_file = src / "dst_save.txt"
+        dst_file = dst / "dst_save.txt"
         dst_file.touch()
 
         # run ssf
@@ -78,11 +84,26 @@ def test_only_symlink():
         src = Path(src_dir_name) / "mysavesrc"
         dst = Path(dst_dir_name) / "mysavedst"
 
+        # dst exists
+        dst.mkdir()
+        dst_file = dst / "dst_save.txt"
+        dst_file.touch()
+
         # run ssf
         ssf.files.symlink(src, dst)
 
         assert src.is_symlink() and src.readlink() == dst
         assert (dst / "save.txt").exists() is False
+
+
+def test_only_symlink_without_target():
+    with tempfile.TemporaryDirectory() as src_dir_name, tempfile.TemporaryDirectory() as dst_dir_name:
+        src = Path(src_dir_name) / "mysavesrc"
+        dst = Path(dst_dir_name) / "mysavedst"
+
+        # run ssf
+        with pytest.raises(RuntimeError):
+            ssf.files.symlink(src, dst)
 
 
 def test_game_not_installed():

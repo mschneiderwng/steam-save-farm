@@ -22,10 +22,16 @@ def symlink(src: Path, dst: Path) -> None:
         shutil.copytree(src, dst, dirs_exist_ok=True)
         shutil.rmtree(src)
 
-    # create symlink
+    # chech if symlink can be created in src
+    # no error since game might not be installed
     if not src.parent.exists():
         log.info(f"src path '{src.parent}' does not exist; cannot create symlink.")
         return
+
+    # check if target exists
+    if not dst.exists():
+        log.error(f"dst '{dst}' does not exist; cannot create symlink.")
+        raise RuntimeError(f"dst '{dst}' does not exist; cannot create symlink.")
 
     # create symlink
     log.info(f"creating symlink from '{src}' to '{dst}'")
