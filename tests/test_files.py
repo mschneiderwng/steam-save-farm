@@ -72,10 +72,10 @@ def test_dst_already_exists():
         dst_file.touch()
 
         # run ssf
-        ssf.files.symlink(src, dst)
+        ssf.files.symlink(src, dst, seed=123)
 
         assert src.is_symlink() and src.readlink() == dst
-        assert (dst / "src_save.txt").exists()
+        assert (dst / "c4da537c-1651-4dae-8486-7db30d67b366" / "src_save.txt").exists()
         assert (dst / "dst_save.txt").exists()
 
 

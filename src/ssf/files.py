@@ -1,11 +1,18 @@
 import structlog
 from pathlib import Path
 import shutil
+import uuid
+import random
 
 log = structlog.get_logger()
 
 
-def symlink(src: Path, dst: Path) -> None:
+def symlink(src: Path, dst: Path, seed=None) -> None:
+    # we may need to create a backup directy.
+    # use this seed to create a dir name.
+    rd = random.Random()
+    rd.seed(seed)
+
     # done if src is symlink do dst
     if src.is_symlink() and src.readlink() == dst:
         log.info(f"symlink from '{src}' to '{dst}' already done")
@@ -18,8 +25,15 @@ def symlink(src: Path, dst: Path) -> None:
 
     # if src exist, move to dst
     if src.exists() and not src.is_symlink():
-        log.info(f"moving '{src}' to '{dst}'")
-        shutil.copytree(src, dst, dirs_exist_ok=True)
+        # if dst does also exist, move src files to sub directory
+        if dst.exists():
+            backup = dst / str(uuid.UUID(int=rd.getrandbits(128), version=4))
+            log.warning(f"dst '{dst}' does already exist; move src files to sub directory {backup}.")
+            shutil.copytree(src, backup, dirs_exist_ok=False)
+        # if dst does not exist, simply move the directory
+        else:
+            log.info(f"moving '{src}' to '{dst}'")
+            shutil.copytree(src, dst, dirs_exist_ok=False)
         shutil.rmtree(src)
 
     # chech if symlink can be created in src
